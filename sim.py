@@ -47,23 +47,23 @@ class MoveArmy:
             # claiming unowned province
             self.dest.army += self.val
             self.owner = self.fac
-            print(f'{self.fac} takes {self.dest}')
+            return f'[RESOLUTION]: [CAPTURE]'
         elif self.dest.owner is not self.fac:
             def_str = self.dest.defense + self.dest.army
             att_str = self.val
             if def_str >= att_str:
                 # def wins
                 self.dest.army -= max(att_str - self.dest.defense, 0)
-                print(f'{self.fac} fails to take {self.dest} from the defenders')
+                return f'[RESOLUTION]: [FAILED]'
             else:
                 # att wins
                 self.dest.owner = self.fac
                 self.dest.army = self.val - def_str
-                print(f'{self.fac} takes {self.dest} from the defenders')
+                return f'[RESOLUTION]: [CAPTURE]'
         else:
             self.dest.army += self.val
     def __repr__(self):
-        return f'{self.fac} moves {self.val} armies from {self.src} to {self.dest}.'
+        return f'[MOVE]: [MoveArmy] [FACTION]: [{self.fac}] [SRC]: [{self.src}] [DEST]: [{self.dest}] [VAL]: [{self.val}]'
 class BuildArmy:
     def __init__(self, f, s, v):
         self.fac = f
@@ -74,8 +74,9 @@ class BuildArmy:
     def execute(self):
         self.fac.gold -= self.val
         self.src.army += self.val
+        return '[RESOLUTION]: [BUILT]'
     def __repr__(self):
-        return f'{self.fac} builds {self.val} armies in {self.src}.'
+        return f'[MOVE]: [BuildArmy] [FACTION]: [{self.fac}] [SRC]: [{self.src}] [VAL]: [{self.val}]'
 class BuildDefenses:
     def __init__(self, f, s, v):
         self.fac = f
@@ -86,8 +87,9 @@ class BuildDefenses:
     def execute(self):
         self.fac.gold -= self.val
         self.src.defense += self.val
+        return '[RESOLUTION]: [BUILT]'
     def __repr__(self):
-        return f'{self.fac} builds {self.val} defenses in {self.src}.'
+        return f'[MOVE]: [BuildDefenses] [FACTION]: [{self.fac}] [SRC]: [{self.src}] [VAL]: [{self.val}]'
 
 class Faction:
     def __init__(self, name, player=None):
@@ -98,7 +100,7 @@ class Faction:
     def get_moves(self, m):
         return self.player.get_moves(m)
     def __repr__(self):
-        return f'faction_{self.name}'
+        return f'f_{self.name}'
 
 class Tile:
     def __init__(self, pos):
@@ -108,7 +110,7 @@ class Tile:
         self.army = 1
         self.defense = 1
     def __repr__(self):
-        return f'tile_{self.pos}'
+        return f't_{self.pos}'
 
 class Map:
     def __init__(self, w, h):
@@ -151,5 +153,5 @@ class GameManager:
         for m in moves:
             # execute move
             print(m)
-            if m.is_valid(): m.execute()
+            if m.is_valid(): print(m.execute())
         self.map.factions = [ f for f in self.map.factions if len(self.map.get_fac_tiles(f)) > 0 ]
