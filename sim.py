@@ -63,7 +63,7 @@ class MoveArmy:
         else:
             self.dest.army += self.val
     def __repr__(self):
-        return f'{self.fac} moves {self.val} army from {self.src} to {self.dest}.'
+        return f'{self.fac} moves {self.val} armies from {self.src} to {self.dest}.'
 class BuildArmy:
     def __init__(self, f, s, v):
         self.fac = f
@@ -74,28 +74,29 @@ class BuildArmy:
     def execute(self):
         self.fac.gold -= self.val
         self.src.army += self.val
-        # print("the build is successful")
     def __repr__(self):
-        return f'{self.fac} builds {self.val} army in {self.src}.'
+        return f'{self.fac} builds {self.val} armies in {self.src}.'
+class BuildDefenses:
+    def __init__(self, f, s, v):
+        self.fac = f
+        self.src = s
+        self.val = v
+    def is_valid(self):
+        return self.src.owner is self.fac and self.fac.gold >= self.val and self.src.defense < 1000
+    def execute(self):
+        self.fac.gold -= self.val
+        self.src.defense += self.val
+    def __repr__(self):
+        return f'{self.fac} builds {self.val} defenses in {self.src}.'
 
 class Faction:
     def __init__(self, name, player=None):
         self.name = name
         self.player = None
         self.gold = 1
-    # all factions should have a player but if something
-    # fucks up they fallback on pleb behavior
+    # all factions should have a player
     def get_moves(self, m):
-        if self.player is not None: return self.player.get_moves(m)
-        moves = []
-        # movement moves
-        for t in m.get_fac_tiles(self):
-            for a in m.get_adjs(t.pos):
-                moves.append(MoveArmy(self, t, a, t.army / 2))
-        # build moves
-        for t in m.get_fac_tiles(self):
-            moves.append(BuildArmy(self, t, self.gold / 2))
-        return random.choice(moves)
+        return self.player.get_moves(m)
     def __repr__(self):
         return f'faction_{self.name}'
 
